@@ -103,14 +103,33 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      - name: Build client
-        run: npm run build -w apps/client
+      - name: Bundle client with esbuild
+        run: |
+          cd apps/client
+          npx esbuild src/index.tsx \
+            --bundle \
+            --platform=node \
+            --external:ink \
+            --external:react \
+            --external:eventsource \
+            --external:node-notifier \
+            --external:vax-core.*.node \
+            --outfile=dist/index.js \
+            --format=esm \
+            --sourcemap
+
+      - name: Copy runtime files
+        run: |
+          cp -r apps/client/dist release/
+          cp apps/client/package.json release/client/
+          cp package-lock.json release/client/
+          cp install.sh release/
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: client-dist
-          path: apps/client/dist
+          path: release
           retention-days: 5
 
   # ─── Assemble release package ──────────────────────────────────────────
@@ -134,7 +153,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: client-dist
-          path: release/client
+          path: release
 
       - name: Determine version
         id: version
@@ -285,8 +304,9 @@ jobs:
         run: |
           cd release
           tar -czf client.tar.gz client/
+          zip -r client.zip client/
           echo "Client package size:"
-          du -sh client.tar.gz
+          du -sh client.tar.gz client.zip
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
