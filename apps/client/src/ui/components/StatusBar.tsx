@@ -26,7 +26,8 @@ export function StatusBar({ state }: Props) {
       <Text color={conn.color}>{conn.icon}</Text>
       <Text color={colors.text}> {conn.label} ┃ </Text>
       <Text bold color={colors.text}>{state.isUnlocked ? '▓ SECURE' : '░ LOCKED'}</Text>
-      <Text color={colors.text}> ┃ 🮇 {pubKey} ┃ 🕒 {time}</Text>
+      <Text color={colors.text}> ┃ 🔒 XChaCha20-Poly1305 ┃ 🮇 {pubKey} ┃ 🕒 {time}</Text>
+      <Text color={colors.textMuted}> [Ctrl+P=privacidade]</Text>
     </Box>
   );
 }

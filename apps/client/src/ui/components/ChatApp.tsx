@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Text } from 'ink';
-import { ThemeProvider, useTheme } from '../theme.js';
+import { ThemeProvider, useTheme, themes, type ThemeName } from '../theme.js';
 import { useStore } from '../hooks/useStore.js';
 import { SplashScreen } from './SplashScreen.js';
 import { OnboardingScreen } from './OnboardingScreen.js';
@@ -8,13 +8,16 @@ import { UnlockScreen } from './UnlockScreen.js';
 import { ChatLayout } from './ChatLayout.js';
 import { InputBar } from './InputBar.js';
 import { store } from '../../core/store.js';
+import { setTheme as updateThemeConfig } from '../core/config.js';
 import { useInput } from 'ink';
 
 type Phase = 'splash' | 'onboarding' | 'unlock' | 'chat';
 
 function ChatAppInner() {
   const { state } = useStore();
+  const { switchTheme } = useTheme();
   const [phase, setPhase] = useState<Phase>('splash');
+  const [privacyMode, setPrivacyMode] = useState(false);
 
   useEffect(() => {
     store.initialize().then(() => {
@@ -33,6 +36,9 @@ function ChatAppInner() {
       store.leaveRoom();
       store.lockVault();
       process.exit(0);
+    }
+    if (key.ctrl && input === 'p') {
+      setPrivacyMode(p => !p);
     }
   });
 
@@ -80,9 +86,16 @@ function ChatAppInner() {
       case 'leave':
         store.leaveRoom();
         break;
-      case 'theme':
-        // Handled in ThemeProvider (Task 12)
+      case 'theme': {
+        const name = args[0] as ThemeName;
+        if (!name || !themes[name]) {
+          // Show available themes
+          break;
+        }
+        switchTheme(name);
+        updateThemeConfig(name);
         break;
+      }
       case 'quit':
       case 'exit':
         store.leaveRoom();
@@ -130,6 +143,7 @@ function ChatAppInner() {
         state={state}
         messages={currentMessages}
         onRoomSelect={(id) => store.joinRoom(id)}
+        privacyMode={privacyMode}
       />
       <InputBar
         onSubmit={handleMessageSubmit}

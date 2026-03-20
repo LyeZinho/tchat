@@ -2,6 +2,7 @@ import React from 'react';
 import { Box } from 'ink';
 import { ServerRail } from './ServerRail.js';
 import { Sidebar } from './Sidebar.js';
+import { UserList } from './UserList.js';
 import { ChatLog } from './ChatLog.js';
 import { StatusBar } from './StatusBar.js';
 import type { AppState } from '../../core/store.js';
@@ -11,9 +12,10 @@ interface Props {
   state: AppState;
   messages: Message[];
   onRoomSelect: (roomId: string) => void;
+  privacyMode?: boolean;
 }
 
-export function ChatLayout({ state, messages, onRoomSelect }: Props) {
+export function ChatLayout({ state, messages, onRoomSelect, privacyMode = false }: Props) {
   const rooms = Array.from(state.rooms.values());
 
   return (
@@ -26,8 +28,9 @@ export function ChatLayout({ state, messages, onRoomSelect }: Props) {
           onSelect={onRoomSelect}
         />
         <Box flexGrow={1} flexDirection="column">
-          <ChatLog messages={messages} />
+          <ChatLog messages={messages} privacyMode={privacyMode} />
         </Box>
+        <UserList users={state.onlineUsers} onSelect={() => {}} />
       </Box>
       <StatusBar state={state} />
     </Box>

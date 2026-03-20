@@ -1,4 +1,5 @@
-import { createContext, useContext, type ReactNode } from 'react';
+import { createContext, useContext, useState, type ReactNode } from 'react';
+import { appConfig, setTheme as updateThemeConfig } from './core/config.js';
 
 export const themes = {
     default: {
@@ -67,12 +68,17 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  // TODO (Task 9 will wire up actual state management)
-  // For now, return static default theme
+  const [themeName, setThemeName] = useState<ThemeName>(appConfig.themeName);
+
   const value: ThemeContextValue = {
-    colors: themes.default,
-    themeName: 'default',
-    switchTheme: () => {},
+    colors: themes[themeName],
+    themeName,
+    switchTheme: (name) => {
+      if (themes[name]) {
+        updateThemeConfig(name);
+        setThemeName(name);
+      }
+    },
   };
 
   return (
