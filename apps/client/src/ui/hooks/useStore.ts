@@ -49,7 +49,7 @@ const INITIAL_STATE: AppState = {
   connectionStatus: 'disconnected',
 };
 
-export function useStore() {
+export function useStore(): { state: AppState; store: typeof store } {
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
 
   useEffect(() => {
